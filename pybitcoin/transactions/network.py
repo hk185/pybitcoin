@@ -74,10 +74,10 @@ def get_private_key_obj(private_key):
         return BitcoinPrivateKey(private_key)
 
 
-def analyze_private_key(private_key, blockchain_client):
+def analyze_private_key(private_key, blockchain_client, from_address=None):
     private_key_obj = get_private_key_obj(private_key)
     # determine the address associated with the supplied private key
-    from_address = private_key_obj.public_key().address() 
+    from_address = private_key_obj.public_key().address() if from_address is None else from_address
     # get the unspent outputs corresponding to the given address
     inputs = get_unspents(from_address, blockchain_client)
     # return the inputs
@@ -86,12 +86,12 @@ def analyze_private_key(private_key, blockchain_client):
 
 def make_send_to_address_tx(recipient_address, amount, private_key,
         blockchain_client=BlockchainInfoClient(), fee=STANDARD_FEE,
-        change_address=None):
+        change_address=None, from_address=None):
     """ Builds and signs a "send to address" transaction.
     """
     # get out the private key object, sending address, and inputs
     private_key_obj, from_address, inputs = analyze_private_key(private_key,
-        blockchain_client)
+        blockchain_client, from_address)
     # get the change address
     if not change_address:
         change_address = from_address
@@ -138,13 +138,13 @@ def make_op_return_tx(data, private_key,
 
 def send_to_address(recipient_address, amount, private_key,
         blockchain_client=BlockchainInfoClient(), fee=STANDARD_FEE,
-        change_address=None):
+        change_address=None, from_address=None):
     """ Builds, signs, and dispatches a "send to address" transaction.
     """
     # build and sign the tx
     signed_tx = make_send_to_address_tx(recipient_address, amount,
         private_key, blockchain_client, fee=fee,
-        change_address=change_address)
+        change_address=change_address, from_address=from_address)
     # dispatch the signed transction to the network
     response = broadcast_transaction(signed_tx, blockchain_client)
     # return the response

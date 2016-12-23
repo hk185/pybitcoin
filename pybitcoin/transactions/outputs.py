@@ -26,7 +26,7 @@ def make_pay_to_address_outputs(to_address, send_amount, inputs, change_address,
     """
     return [
         # main output
-        { "script_hex": make_pay_to_address_script(to_address), "value": send_amount },
+        { "script_hex": make_pay_to_address_script(to_address), "value": send_amount},
         # change output
         { "script_hex": make_pay_to_address_script(change_address),
           "value": calculate_change_amount(inputs, send_amount, fee)
